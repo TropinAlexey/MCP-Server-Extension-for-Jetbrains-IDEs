@@ -13,6 +13,7 @@ import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
@@ -179,10 +180,15 @@ class UniversalWorkspaceConfigToolset : McpToolset {
         }
     }
 
+    private fun getBaseDir(project: Project): VirtualFile? {
+        val basePath = project.basePath ?: return null
+        return LocalFileSystem.getInstance().findFileByPath(basePath)
+    }
+
     private fun isIntelliJProject(project: Project): Boolean {
         return try {
             // Check for Maven/Gradle project files
-            val baseDir = project.baseDir
+            val baseDir = getBaseDir(project)
             baseDir?.findFileByRelativePath("pom.xml") != null ||
             baseDir?.findFileByRelativePath("build.gradle") != null ||
             baseDir?.findFileByRelativePath("build.gradle.kts") != null ||
@@ -338,7 +344,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
     }
 
     private fun getIntelliJSpecificConfig(project: Project): JsonObject? {
-        val baseDir = project.baseDir ?: return null
+        val baseDir = getBaseDir(project) ?: return null
         
         val hasMaven = baseDir.findFileByRelativePath("pom.xml") != null
         val hasGradle = baseDir.findFileByRelativePath("build.gradle") != null ||
@@ -357,8 +363,8 @@ class UniversalWorkspaceConfigToolset : McpToolset {
             }
             // Try to find modules
             val modules = ModuleManager.getInstance(project).modules
-            val mavenModules = modules.filter { it.getModuleTypeName()?.contains("MAVEN", ignoreCase = true) == true }
-            val gradleModules = modules.filter { it.getModuleTypeName()?.contains("GRADLE", ignoreCase = true) == true }
+            val mavenModules = modules.filter { ModuleType.get(it).name?.contains("MAVEN", ignoreCase = true) == true }
+            val gradleModules = modules.filter { ModuleType.get(it).name?.contains("GRADLE", ignoreCase = true) == true }
 
             if (mavenModules.isNotEmpty()) {
                 putJsonArray("mavenModules") {
@@ -386,7 +392,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
     }
 
     private fun getPyCharmSpecificConfig(project: Project): JsonObject? {
-        val baseDir = project.baseDir ?: return null
+        val baseDir = getBaseDir(project) ?: return null
         
         // Check for Python project files
         val hasRequirements = baseDir.findFileByRelativePath("requirements.txt") != null
@@ -405,7 +411,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
     }
 
     private fun getGoLandSpecificConfig(project: Project): JsonObject? {
-        val baseDir = project.baseDir ?: return null
+        val baseDir = getBaseDir(project) ?: return null
         
         val goMod = baseDir.findFileByRelativePath("go.mod")
         val goWork = baseDir.findFileByRelativePath("go.work")
@@ -419,7 +425,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
     }
 
     private fun getWebStormSpecificConfig(project: Project): JsonObject? {
-        val baseDir = project.baseDir ?: return null
+        val baseDir = getBaseDir(project) ?: return null
         
         val pkgJson = baseDir.findFileByRelativePath("package.json")
         val pnpmLock = baseDir.findFileByRelativePath("pnpm-lock.yaml")
@@ -450,7 +456,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
     }
 
     private fun getCLionSpecificConfig(project: Project): JsonObject? {
-        val baseDir = project.baseDir ?: return null
+        val baseDir = getBaseDir(project) ?: return null
         
         val cmakeLists = baseDir.findFileByRelativePath("CMakeLists.txt")
         val cmakePresets = baseDir.findFileByRelativePath("CMakePresets.json")
@@ -466,7 +472,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
     }
 
     private fun getPhpStormSpecificConfig(project: Project): JsonObject? {
-        val baseDir = project.baseDir ?: return null
+        val baseDir = getBaseDir(project) ?: return null
         
         val composerJson = baseDir.findFileByRelativePath("composer.json")
         val composerLock = baseDir.findFileByRelativePath("composer.lock")
@@ -480,7 +486,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
     }
 
     private fun getRubyMineSpecificConfig(project: Project): JsonObject? {
-        val baseDir = project.baseDir ?: return null
+        val baseDir = getBaseDir(project) ?: return null
         
         val gemfile = baseDir.findFileByRelativePath("Gemfile")
         val gemfileLock = baseDir.findFileByRelativePath("Gemfile.lock")
@@ -494,7 +500,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
     }
 
     private fun getRustRoverSpecificConfig(project: Project): JsonObject? {
-        val baseDir = project.baseDir ?: return null
+        val baseDir = getBaseDir(project) ?: return null
         
         val cargoToml = baseDir.findFileByRelativePath("Cargo.toml")
         val cargoLock = baseDir.findFileByRelativePath("Cargo.lock")
