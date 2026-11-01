@@ -34,6 +34,7 @@
     <depends optional="true" config-file="php-only.xml">com.intellij.modules.php</depends>
     <depends optional="true" config-file="ruby-only.xml">com.intellij.modules.ruby</depends>
     <depends optional="true" config-file="universal-test-only.xml">com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="universal-workspace-only.xml">com.intellij.modules.platform</depends>
     <depends optional="true" config-file="db-consoles.xml">com.intellij.database</depends>
 
     <!-- Test runner: a separate plugin since 2026.2, part of the platform in 2026.1. A hard dependency
@@ -53,6 +54,7 @@
         <!-- Cross-IDE toolsets with conditional backends -->
         <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.testing.TestToolset"/>
         <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.testing.UniversalTestToolset"/>
+        <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.workspace.UniversalWorkspaceConfigToolset"/>
         <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.runconfig.RunConfigToolset"/>
         <notificationGroup id="MCP Server Extension" displayType="BALLOON"/>
     </extensions>
