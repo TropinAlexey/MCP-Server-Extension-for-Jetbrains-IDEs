@@ -1,0 +1,8 @@
+<!-- RubyMine/Ruby-only extensions: loaded only when com.intellij.modules.ruby is present -->
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.ruby.BundlerToolset"/>
+        <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.ruby.RSpecToolset"/>
+        <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.ruby.RuboCopToolset"/>
+    </extensions>
+</idea-plugin>

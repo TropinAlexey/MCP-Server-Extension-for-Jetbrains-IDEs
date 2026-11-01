@@ -112,7 +112,7 @@ issues-шаблоны, verifyPlugin без ошибок.
 
 ## P6 — Cross-IDE & Ecosystem (New, 10.2026)
 
-### Universal IDE support (DONE: Rider, RustRover, PyCharm, GoLand, WebStorm, IntelliJ IDEA, CLion, PhpStorm, all IntelliJ-based)
+### Universal IDE support (DONE: Rider, RustRover, PyCharm, GoLand, WebStorm, IntelliJ IDEA, CLion, PhpStorm, RubyMine, all IntelliJ-based)
 - [x] Plugin loads in all JetBrains IDEs 2026.2+ (IntelliJ IDEA, PyCharm, WebStorm, GoLand, CLion, DataGrip, PhpStorm, RubyMine, Android Studio, etc.)
 - [x] Rider-only tools isolated via `rider-only.xml` (NuGet, Publish, SWEA, dotTrace/dotMemory, WorkspaceConfig)
 - [x] RustRover-only tool: `rider_cargo` (Cargo package management) via `rust-only.xml`
@@ -122,8 +122,8 @@ issues-шаблоны, verifyPlugin без ошибок.
 - [x] IntelliJ IDEA-only tools: `rider_maven`, `rider_gradle`, `rider_junit` via `java-only.xml`
 - [x] CLion-only tools: `rider_cmake`, `rider_conan`, `rider_debugger` via `cpp-only.xml`
 - [x] PhpStorm-only tools: `rider_composer`, `rider_phpunit`, `rider_phpstan` via `php-only.xml`
+- [x] RubyMine-only tools: `rider_bundler`, `rider_rspec`, `rider_rubocop` via `ruby-only.xml`
 - [ ] Add IDE-specific tools per platform:
-  - Ruby (RubyMine): Bundler, RSpec, RuboCop
 - [ ] Document IDE-specific tool availability in a generated matrix (auto-sync from code)
 
 ### Cargo tool enhancements (RustRover)
