@@ -1,0 +1,6 @@
+<!-- Universal Test-only extensions: loaded only when com.intellij.modules.platform is present (available in all IDEs) -->
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.testing.UniversalTestToolset"/>
+    </extensions>
+</idea-plugin>

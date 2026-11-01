@@ -134,7 +134,7 @@ issues-шаблоны, verifyPlugin без ошибок.
 
 ### Cross-IDE workflows
 - [ ] Universal `rider_workspace_config` that works per-IDE (build output paths, run configs)
-- [ ] Universal test runner abstraction over IDE's native test frameworks
+- [x] Universal test runner abstraction over IDE's native test frameworks (`rider_test`)
 - [ ] Universal database tooling (already done via JDBC — works everywhere)
 
 ### Marketplace & Distribution

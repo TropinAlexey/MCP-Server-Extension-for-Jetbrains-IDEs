@@ -20,7 +20,7 @@
               Gemini CLI) call read-only or all IDE tools without a prompt; read-only tools declare <code>readOnlyHint</code></li>
           <li><b>Solution Wide Analysis</b> error counts, inspection settings, IDE-managed processes, live dotTrace/dotMemory sessions, cache invalidation</li>
         </ul>
-        <p>Requires 2026.2+. Supports all JetBrains IDEs: IntelliJ IDEA, Rider, RustRover, PyCharm, GoLand, WebStorm, CLion, PhpStorm, RubyMine, DataGrip, Android Studio. IDE-specific tools: Rider (NuGet, Publish, SWEA, dotTrace/dotMemory, WorkspaceConfig), RustRover (Cargo), PyCharm (Python env, pip, pytest, Django), GoLand (Go mod, test, gopls), WebStorm (npm, test, eslint), IntelliJ IDEA (Maven, Gradle, JUnit), CLion (CMake, Conan, GDB/LLDB), PhpStorm (Composer, PHPUnit, PHPStan), RubyMine (Bundler, RSpec, RuboCop).</p>
+        <p>Requires 2026.2+. Supports all JetBrains IDEs: IntelliJ IDEA, Rider, RustRover, PyCharm, GoLand, WebStorm, CLion, PhpStorm, RubyMine, DataGrip, Android Studio. IDE-specific tools: Rider (NuGet, Publish, SWEA, dotTrace/dotMemory, WorkspaceConfig), RustRover (Cargo), PyCharm (Python env, pip, pytest, Django), GoLand (Go mod, test, gopls), WebStorm (npm, test, eslint), IntelliJ IDEA (Maven, Gradle, JUnit), CLion (CMake, Conan, GDB/LLDB), PhpStorm (Composer, PHPUnit, PHPStan), RubyMine (Bundler, RSpec, RuboCop). Universal: rider_test (cross-IDE test runner).</p>
     ]]></description>
 
     <depends>com.intellij.mcpServer</depends>
@@ -33,6 +33,7 @@
     <depends optional="true" config-file="cpp-only.xml">com.intellij.modules.clion</depends>
     <depends optional="true" config-file="php-only.xml">com.intellij.modules.php</depends>
     <depends optional="true" config-file="ruby-only.xml">com.intellij.modules.ruby</depends>
+    <depends optional="true" config-file="universal-test-only.xml">com.intellij.modules.platform</depends>
     <depends optional="true" config-file="db-consoles.xml">com.intellij.database</depends>
 
     <!-- Test runner: a separate plugin since 2026.2, part of the platform in 2026.1. A hard dependency
@@ -51,6 +52,7 @@
         <!-- Rider-only toolsets are registered in rider-only.xml -->
         <!-- Cross-IDE toolsets with conditional backends -->
         <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.testing.TestToolset"/>
+        <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.testing.UniversalTestToolset"/>
         <mcpServer.mcpToolset implementation="com.github.tropin.ridermcp.runconfig.RunConfigToolset"/>
         <notificationGroup id="MCP Server Extension" displayType="BALLOON"/>
     </extensions>
