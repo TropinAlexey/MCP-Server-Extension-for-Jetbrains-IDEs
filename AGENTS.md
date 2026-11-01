@@ -204,3 +204,53 @@ After any significant change (tool code, `McpDescription`, `plugin.xml`, docs th
 ## Testing rule
 
 New or changed tool behavior ships with tests, no exceptions — pure logic (masking, parsing, pagination caps, validation) as unit tests, IDE-bound paths as IDE tests. A guard without a test is unfinished work: add the test in the same change and report the test run result alongside the zip.
+
+## ADR: Universal vs IDE-specific Test Runners
+
+**Decision:** `rider_test` (universal) and IDE-specific test tools (`rider_tests`, `rider_pytest`, `rider_go_test`, `rider_js_test`, `rider_junit`, `rider_phpunit`, `rider_rspec`) coexist. Agents must choose correctly.
+
+### When to use `rider_test` (universal)
+- Quick, simple test runs: "run tests", "run tests with coverage", "list tests", "rerun failed"
+- Cross-IDE scripts / workflows that must work identically in Rider, PyCharm, GoLand, WebStorm, PhpStorm, RubyMine
+- Auto-detection is acceptable (project has clear marker files: `go.mod`, `pyproject.toml`, `package.json`, `composer.json`, `Gemfile`, `pom.xml`/`build.gradle`)
+- No need for IDE-specific advanced features
+
+### When to use IDE-specific tools
+| Tool | IDE | Use when |
+|---|---|---|
+| `rider_tests` | Rider | .NET-specific: `--filter` by FullyQualifiedName, Testcontainers, NUnit/xUnit/MSTest traits, `--logger`, `--results-dir`, `--blame`, integration with Rider's test runner UI |
+| `rider_pytest` | PyCharm | Django tests (`rider_django` integration), `--cov` with specific packages, `--tb=short`, `-x`/`--exitfirst`, pytest plugins, `pytest.ini`/`pyproject.toml` config precedence |
+| `rider_go_test` | GoLand | `-race`, `-count=N`, `-bench`, `-benchmem`, `-vet=off`, `-p=N` parallelism, `go test ./...` package patterns, `gopls` diagnostics integration |
+| `rider_js_test` | WebStorm | `--watch`, `--watchAll`, `--coverageReporters`, `--testPathPattern`, `--testNamePattern`, `jest.config.*` / `vitest.config.*` resolution, Playwright config |
+| `rider_junit` | IntelliJ | JUnit 4/5 specific: `--select-class`, `--select-method`, `--include-tag`/`--exclude-tag`, Gradle/Maven test task args, Surefire/Failsafe config |
+| `rider_phpunit` | PhpStorm | `--testsuite`, `--group`, `--exclude-group`, `--process-isolation`, `--no-coverage`, PHPUnit XML config, Laravel/Drupal/Symfony bootstrap |
+| `rider_rspec` | RubyMine | `--bisect`, `--format=documentation`, `--format=html`, `--only-failures`, `--next-failure`, RSpec config, Spring/Zeus preloaders |
+
+### Key differentiators
+- **IDE-specific tools** integrate with the IDE's native test runner (UI, navigation to failures, re-run buttons, gutter icons)
+- **IDE-specific tools** accept framework-native args directly (no translation layer)
+- **`rider_test`** provides a common denominator: run/list/coverage/rerun_failed with sessionId polling
+
+### Agent routing rule
+```
+IF user asks "run tests" without specifying framework/IDE-specific flags
+   AND project has clear marker file
+THEN use rider_test (simpler, cross-IDE)
+
+IF user mentions framework-specific flags (--race, --watch, --bisect, -race, --filter=FullyQualifiedName, etc.)
+   OR wants IDE test runner UI integration (navigate to failure, gutter icons)
+   OR project is ambiguous (multiple marker files)
+THEN use IDE-specific tool
+```
+
+### Framework detection in `rider_test`
+| Marker file(s) | Detected framework |
+|---|---|
+| `go.mod` | `go` |
+| `pyproject.toml`, `pytest.ini`, `requirements.txt` | `pytest` |
+| `package.json` (scripts with vitest/playwright/mocha) | `vitest`/`playwright`/`mocha`/`jest` |
+| `composer.json` | `phpunit` |
+| `Gemfile` | `rspec` |
+| `pom.xml`, `build.gradle(.kts)` | `dotnet` (assumes .NET in JVM project — may need explicit `framework`) |
+
+**Note:** Java projects (`pom.xml`/`build.gradle`) are detected as `dotnet` by default. For JUnit, explicitly pass `framework=junit` — but prefer `rider_junit` in IntelliJ for native support.

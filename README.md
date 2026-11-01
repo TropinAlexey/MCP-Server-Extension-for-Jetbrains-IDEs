@@ -26,7 +26,7 @@ The built-in MCP server covers files, search, and running things, but most of wh
 
 **The core problem: your AI assistant is blind to what happens inside the IDE.**
 
-A programmer staring at Rider sees dozens of information surfaces simultaneously — Build Output streaming in real time, Problems panel lighting up with errors, test runner trees expanding, progress bars showing indexing status, notifications popping up about package restores. An MCP client sees none of this.
+A programmer staring at their IDE sees dozens of information surfaces simultaneously — Build Output streaming in real time, Problems panel lighting up with errors, test runner trees expanding, progress bars showing indexing status, notifications popping up about package restores. An MCP client sees none of this.
 
 When a build hangs, you see the output frozen at "Building Project7..." — your assistant sees nothing. When a test run or Publish is still going, you see the progress bar — your assistant only knows it started. When the app you are debugging prints an exception, you see it in the Debug console — your assistant sees the debugger, but not the app's output.
 
@@ -34,20 +34,23 @@ This plugin bridges that gap. It gives any MCP-compatible client (Claude Code, C
 
 ### What the stock MCP plugin provides vs. what this adds
 
-Rider 2026.2 ships a strong built-in MCP server. This plugin covers what it does not, and steers agents to the built-in tool where that one is the better choice (state as of Rider 2026.2):
+JetBrains IDEs 2026.2+ ship a strong built-in MCP server. This plugin covers what it does not, and steers agents to the built-in tool where that one is the better choice (state as of 2026.2):
+
+> **Note:** Items marked **(Rider only)** are unavailable in other IDEs (RustRover, PyCharm, GoLand, WebStorm, IntelliJ IDEA, CLion, PhpStorm, RubyMine, etc.). Universal tools work identically across all IDEs.
 
 | Capability | Built-in MCP Server | This Extension |
 |---|---|---|
 | Read/edit files, search, refactorings | ✅ `read_file`, `apply_patch`, `search_*`, `rename_refactoring`, `extract_method`, `safe_delete`, … | — |
 | Code analysis of files | ✅ `get_file_problems`, `lint_files`, `reformat_file` | — |
 | Build solution | ✅ `build_solution_start` + `build_solution_state` (result + problems with file/line) | — (raw build log via `rider_tool_window(windowId='Build')`) |
-| Problems / solution-wide errors | Partial: `get_project_problems` reads the Problems View | ✅ `rider_swea_errors`: Solution Wide Analysis counts per project, top codes, samples |
+| Problems / solution-wide errors | Partial: `get_project_problems` reads the Problems View | ✅ `rider_swea_errors` **(Rider only)**: Solution Wide Analysis counts per project, top codes, samples |
 | Run an app / run configurations | ✅ `get_run_configurations`, `execute_run_configuration` (output, exit code, one-time args/env) | ✅ `rider_run_config(action=create/update/delete)` — persistent configs, clone with args/env |
 | Debugger | ✅ `xdebug_*`: sessions, breakpoints, stack, evaluate, attach, memory | ✅ the debugged app's own stdout: `rider_tool_window(windowId='Debug', section='Console')` |
-| Test runner | Partial: run a test from a gutter run point via `execute_run_configuration`; `findTests` locates the test file | ✅ `rider_tests(action=run/run_and_wait/results/rerun_failed)`: scoped by filter/class/method, structured results with stack traces |
-| Publish | Partial: run a Publish configuration via `execute_run_configuration` | ✅ `rider_publish` streams the output and records Configuration/RID/publishDir for `rider_workspace_config` |
-| Workspace build configuration | ❌ | ✅ `rider_workspace_config`: Configuration, Platform, TargetFramework, exePath per runnable project |
-| NuGet | Partial: `get_project_dependencies` lists packages and references | ✅ `rider_nuget(action=list/add/remove/restore)`, outdated packages |
+| Test runner (Rider) | Partial: run a test from a gutter run point via `execute_run_configuration`; `findTests` locates the test file | ✅ `rider_tests(action=run/run_and_wait/results/rerun_failed)` **(Rider only)**: scoped by filter/class/method, structured results with stack traces |
+| Test runner (Universal) | — | ✅ `rider_test` **(All IDEs)**: auto-detects framework (dotnet/go/pytest/phpunit/rspec/jest/vitest/mocha/playwright), run/list/coverage/rerun_failed with sessionId polling |
+| Publish | Partial: run a Publish configuration via `execute_run_configuration` | ✅ `rider_publish` **(Rider only)** streams the output and records Configuration/RID/publishDir for `rider_workspace_config` |
+| Workspace build configuration | ❌ | ✅ `rider_workspace_config` **(Rider only)**: Configuration, Platform, TargetFramework, exePath per runnable project |
+| NuGet | Partial: `get_project_dependencies` lists packages and references | ✅ `rider_nuget(action=list/add/remove/restore)` **(Rider only)**, outdated packages |
 | Terminal | ✅ `execute_terminal_command` | — (read the terminal text via `rider_tool_window`) |
 | IDE state / progress | ❌ | ✅ `rider_get_ide_state`: indexing, busy, running sessions |
 | Tool windows | ❌ | ✅ any panel as text: `rider_tool_window` (Run, Debug, Build, Problems, TODO, Endpoints, Services, …) |
@@ -55,7 +58,7 @@ Rider 2026.2 ships a strong built-in MCP server. This plugin covers what it does
 | IDE-managed processes | ❌ | ✅ `rider_list_processes` + `rider_kill_process` (processes started from Rider) |
 | Database | ✅ connections (create/edit/test; MSSQL URLs are rejected), schema introspection, table preview, `execute_sql_query` with paging and cancel (asks per schema in an IDE dialog unless always allowed) | ✅ open consoles and table tabs (`rider_list_db_consoles`); scripts with `GO` batches, background jobs with PRINT/RAISERROR progress, read-only guard, secret masking, CSV/JSON export (`rider_execute_console`); results of what the user ran (`rider_console_results`) |
 | Inspection settings | ❌ | ✅ `rider_inspections(action=list/toggle)` |
-| dotTrace / dotMemory | Partial: dotTrace snapshot analysis (call tree, timeline, report) | ✅ live dotTrace / dotMemory sessions: state, start/stop, snapshot (`rider_profiling` action=state|control)
+| dotTrace / dotMemory | Partial: dotTrace snapshot analysis (call tree, timeline, report) | ✅ live dotTrace / dotMemory sessions **(Rider only)**: state, start/stop, snapshot (`rider_profiling` action=state|control)
 | OpenTelemetry (logs, spans, service map) | ✅ `get_log_records`, `get_spans`, `get_service_map` | — |
 | VCS | ✅ `git_status`, `get_repositories` | — |
 | Cache invalidation | ❌ | ✅ `rider_invalidate_caches` (invalidate + restart) |
@@ -65,13 +68,13 @@ Rider 2026.2 ships a strong built-in MCP server. This plugin covers what it does
 This is a companion to the built-in MCP server — not a replacement and not a fork. Install it, and your MCP client sees all of their tools as one unified set. Everything this plugin adds is prefixed with `rider_`, so there are no naming conflicts.
 
 ### Polling Pattern for Async Operations
-MCP tools are synchronous (request → response). Long-running operations of this plugin — test runs, package restores, Publish — use a polling pattern instead of blocking:
+MCP tools are synchronous (request → response). Long-running operations of this plugin — test runs (`rider_tests`, `rider_test`, `rider_pytest`, `rider_go_test`, `rider_js_test`, `rider_junit`, `rider_phpunit`, `rider_rspec`), package restores (`rider_nuget` — Rider only), Publish (`rider_publish` — Rider only), Cargo (`rider_cargo` — RustRover only) — use a polling pattern instead of blocking:
 
-1. `rider_tests(action='run')` / `rider_nuget(action='restore')` / `rider_publish` → returns `{"sessionId": "test_1"}`
+1. `rider_tests(action='run')` / `rider_test(action='run')` / `rider_nuget(action='restore')` / `rider_publish` / `rider_cargo(action='test')` → returns `{"sessionId": "test_1"}`
 2. `rider_get_output("test_1")` → returns new lines since the last call, plus current status
 3. Repeat until `status` is no longer `"running"` (`allLines=true` re-reads full history; `rider_tests(action='results', sessionId=...)` gives the structured test tree)
 
-## Available Tools (21)
+## Available Tools (44)
 
 ### Session polling
 | Tool | Args | Description |
@@ -81,18 +84,18 @@ MCP tools are synchronous (request → response). Long-running operations of thi
 ### Solution analysis & workspace config
 | Tool | Args | Description |
 |---|---|---|
-| `rider_swea_errors` | `maxExamples?=50` | Solution Wide Analysis error/warning counts per project, top error codes, and sample issues. Use when the solution-wide error count does not match the Problems panel |
-| `rider_workspace_config` | — | Read-only snapshot of runnable-project outputs (Configuration, Platform, TargetFramework, exePath, workingDirectory) and the last `rider_*` publish/test operation metadata. Use to diagnose phantom errors after Publish or mismatched RIDs |
+| `rider_swea_errors` | `maxExamples?=50` | **(Rider only)** Solution Wide Analysis error/warning counts per project, top error codes, and sample issues. Use when the solution-wide error count does not match the Problems panel |
+| `rider_workspace_config` | — | **(Rider only)** Read-only snapshot of runnable-project outputs (Configuration, Platform, TargetFramework, exePath, workingDirectory) and the last `rider_*` publish/test operation metadata. Use to diagnose phantom errors after Publish or mismatched RIDs |
 
 ### Publish
 | Tool | Args | Description |
 |---|---|---|
-| `rider_publish` | `configName?` | Trigger a Publish run configuration and return a sessionId. Captures Configuration/Platform/PublishProfile metadata for `rider_workspace_config` |
+| `rider_publish` | `configName?` | **(Rider only)** Trigger a Publish run configuration and return a sessionId. Captures Configuration/Platform/PublishProfile metadata for `rider_workspace_config` |
 
-### Test runner
+### Test runner (Rider)
 | Tool | Args | Description |
 |---|---|---|
-| `rider_tests` | `action=run\|run_and_wait\|results\|rerun_failed`, `configName?`, `filter?`, `className?`, `methodName?`, `sessionId?`, `timeoutMs?` | Run scoped tests (prefer `filter`/`className`/`methodName` — bare `configName` runs the whole config). `run` → sessionId + poll; `run_and_wait` → blocks; `results` → structured tree (IDE config runs only); `rerun_failed` → retry failures |
+| `rider_tests` | `action=run\|run_and_wait\|results\|rerun_failed`, `configName?`, `filter?`, `className?`, `methodName?`, `sessionId?`, `timeoutMs?` | **(Rider only)** Run scoped tests (prefer `filter`/`className`/`methodName` — bare `configName` runs the whole config). `run` → sessionId + poll; `run_and_wait` → blocks; `results` → structured tree (IDE config runs only); `rerun_failed` → retry failures |
 
 ### Process management
 | Tool | Args | Description |
@@ -114,69 +117,62 @@ MCP tools are synchronous (request → response). Long-running operations of thi
 ### NuGet
 | Tool | Args | Description |
 |---|---|---|
-| `rider_nuget` | `action=list\|add\|remove\|restore`, `name?`, `projectPath?`, `version?`, `outdated?` | list/add/remove packages; restore returns sessionId for polling |
+| `rider_nuget` | `action=list\|add\|remove\|restore`, `name?`, `projectPath?`, `version?`, `outdated?` | **(Rider only)** list/add/remove packages; restore returns sessionId for polling |
 
 ### Cargo (RustRover)
 | Tool | Args | Description |
 |---|---|---|
-| `rider_cargo` | `action=list\|add\|remove\|update\|tree\|check\|clippy\|fmt\|test`, `name?`, `projectPath?`, `version?`, `features?`, `package?`, `tree?`, `fix?`, `check?`, `testFilter?`, `noRun?` | Cargo package & quality management: list/add/remove/update crates, tree=dependency tree, check=fast type-check, clippy=lints (--fix), fmt=format (--check), test=run tests (sessionId for polling via rider_get_output, --no-run to only compile) |
+| `rider_cargo` | `action=list\|add\|remove\|update\|tree\|check\|clippy\|fmt\|test`, `name?`, `projectPath?`, `version?`, `features?`, `package?`, `tree?`, `fix?`, `check?`, `testFilter?`, `noRun?` | **(RustRover only)** Cargo package & quality management: list/add/remove/update crates, tree=dependency tree, check=fast type-check, clippy=lints (--fix), fmt=format (--check), test=run tests (sessionId for polling via rider_get_output, --no-run to only compile) |
 
 ### Python (PyCharm)
 | Tool | Args | Description |
 |---|---|---|
-| `rider_python_env` | `action=create\|list\|remove\|sync\|info`, `type?=venv\|conda\|poetry\|pipenv`, `name?`, `pythonVersion?`, `projectPath?`, `requirementsFile?` | Manage Python environments: create/list/remove/sync venv/conda/poetry/pipenv, sync installs deps from requirements/lock files |
-| `rider_pip` | `action=list\|add\|remove\|update\|check\|audit\|freeze`, `name?`, `version?`, `envType?=venv\|conda\|poetry\|pipenv`, `envName?`, `projectPath?`, `outdated?`, `indexUrl?`, `extraIndexUrl?`, `editable?` | Manage packages via pip in a specific environment: list/add/remove/update/check/audit/freeze packages |
-| `rider_pytest` | `action=run\|run_and_wait\|coverage\|collect\|rerun_failed`, `filter?`, `envType?`, `envName?`, `projectPath?`, `extraArgs?`, `coverageFormat?`, `timeoutMs?`, `sessionId?` | Run pytest in a Python environment: run/collect/coverage tests, filter by pattern, sessionId polling |
-| `rider_django` | `action=run\|migrate\|makemigrations\|runserver\|shell\|createsuperuser\|collectstatic\|check\|dbshell\|test`, `command?`, `envType?`, `envName?`, `projectPath?`, `args?`, `settingsModule?`, `appName?` | Run Django management commands: migrate/makemigrations/runserver/shell/createsuperuser/collectstatic/check/dbshell/test |
+| `rider_python_env` | `action=create\|list\|remove\|sync\|info`, `type?=venv\|conda\|poetry\|pipenv`, `name?`, `pythonVersion?`, `projectPath?`, `requirementsFile?` | **(PyCharm only)** Manage Python environments: create/list/remove/sync venv/conda/poetry/pipenv, sync installs deps from requirements/lock files |
+| `rider_pip` | `action=list\|add\|remove\|update\|check\|audit\|freeze`, `name?`, `version?`, `envType?=venv\|conda\|poetry\|pipenv`, `envName?`, `projectPath?`, `outdated?`, `indexUrl?`, `extraIndexUrl?`, `editable?` | **(PyCharm only)** Manage packages via pip in a specific environment: list/add/remove/update/check/audit/freeze packages |
+| `rider_pytest` | `action=run\|run_and_wait\|coverage\|collect\|rerun_failed`, `filter?`, `envType?`, `envName?`, `projectPath?`, `extraArgs?`, `coverageFormat?`, `timeoutMs?`, `sessionId?` | **(PyCharm only)** Run pytest in a Python environment: run/collect/coverage tests, filter by pattern, sessionId polling |
+| `rider_django` | `action=run\|migrate\|makemigrations\|runserver\|shell\|createsuperuser\|collectstatic\|check\|dbshell\|test`, `command?`, `envType?`, `envName?`, `projectPath?`, `args?`, `settingsModule?`, `appName?` | **(PyCharm only)** Run Django management commands: migrate/makemigrations/runserver/shell/createsuperuser/collectstatic/check/dbshell/test |
 
 ### Go (GoLand)
 | Tool | Args | Description |
 |---|---|---|
-| `rider_go_mod` | `action=tidy\|download\|verify\|graph\|why\|vendor\|init`, `modulePath?`, `target?`, `projectPath?` | Manage Go modules: tidy/download/verify/graph/why/vendor/init |
-| `rider_go_test` | `action=run\|run_and_wait\|cover\|bench\|list\|vet`, `pkg?`, `runFilter?`, `benchFilter?`, `projectPath?`, `race?`, `count?`, `coverProfile?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | Run Go tests: run/cover/bench/list/vet, race detector, flaky detection, coverage |
-| `rider_gopls` | `action=diagnostics\|hover\|definition\|references\|completion\|symbols\|format\|imports`, `file?`, `line?`, `column?`, `projectPath?`, `query?`, `includeTests?` | gopls LSP queries: diagnostics, hover, go-to-definition, references, completion, symbols, format, imports |
+| `rider_go_mod` | `action=tidy\|download\|verify\|graph\|why\|vendor\|init`, `modulePath?`, `target?`, `projectPath?` | **(GoLand only)** Manage Go modules: tidy/download/verify/graph/why/vendor/init |
+| `rider_go_test` | `action=run\|run_and_wait\|cover\|bench\|list\|vet`, `pkg?`, `runFilter?`, `benchFilter?`, `projectPath?`, `race?`, `count?`, `coverProfile?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | **(GoLand only)** Run Go tests: run/cover/bench/list/vet, race detector, flaky detection, coverage |
+| `rider_gopls` | `action=diagnostics\|hover\|definition\|references\|completion\|symbols\|format\|imports`, `file?`, `line?`, `column?`, `projectPath?`, `query?`, `includeTests?` | **(GoLand only)** gopls LSP queries: diagnostics, hover, go-to-definition, references, completion, symbols, format, imports |
 
 ### JavaScript/TypeScript (WebStorm)
 | Tool | Args | Description |
 |---|---|---|
-| `rider_npm` | `action=list\|add\|remove\|update\|audit\|outdated\|run`, `name?`, `version?`, `manager?=npm\|yarn\|pnpm`, `dev?`, `peer?`, `optional?`, `outdated?`, `script?`, `extraArgs?` | Manage packages via npm/yarn/pnpm: list/add/remove/update/audit/outdated/run scripts |
-| `rider_js_test` | `action=run\|run_and_wait\|coverage\|list\|watch`, `runner?=jest\|vitest\|mocha\|playwright`, `pattern?`, `filePattern?`, `projectPath?`, `coverage?`, `coverageFormat?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | Run JS/TS tests: jest/vitest/mocha/playwright, run/collect/coverage/watch, filter by pattern |
-| `rider_eslint` | `action=lint\|fix\|check\|config`, `pattern?`, `projectPath?`, `configFile?`, `format?`, `maxWarnings?`, `ignorePattern?`, `cache?`, `quiet?` | ESLint linting/fixing: lint/fix/check/config, configurable format/patterns |
-
-### JavaScript/TypeScript (WebStorm)
-| Tool | Args | Description |
-|---|---|---|
-| `rider_npm` | `action=list\|add\|remove\|update\|audit\|outdated\|run`, `name?`, `version?`, `manager?=npm\|yarn\|pnpm`, `dev?`, `peer?`, `optional?`, `outdated?`, `script?`, `extraArgs?` | Manage packages via npm/yarn/pnpm: list/add/remove/update/audit/outdated/run scripts |
-| `rider_js_test` | `action=run\|run_and_wait\|coverage\|list\|watch`, `runner?=jest\|vitest\|mocha\|playwright`, `pattern?`, `filePattern?`, `projectPath?`, `coverage?`, `coverageFormat?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | Run JS/TS tests: jest/vitest/mocha/playwright, run/collect/coverage/watch, filter by pattern |
-| `rider_eslint` | `action=lint\|fix\|check\|config`, `pattern?`, `projectPath?`, `configFile?`, `format?`, `maxWarnings?`, `ignorePattern?`, `cache?`, `quiet?` | ESLint linting/fixing: lint/fix/check/config, configurable format/patterns |
+| `rider_npm` | `action=list\|add\|remove\|update\|audit\|outdated\|run`, `name?`, `version?`, `manager?=npm\|yarn\|pnpm`, `dev?`, `peer?`, `optional?`, `outdated?`, `script?`, `extraArgs?` | **(WebStorm only)** Manage packages via npm/yarn/pnpm: list/add/remove/update/audit/outdated/run scripts |
+| `rider_js_test` | `action=run\|run_and_wait\|coverage\|list\|watch`, `runner?=jest\|vitest\|mocha\|playwright`, `pattern?`, `filePattern?`, `projectPath?`, `coverage?`, `coverageFormat?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | **(WebStorm only)** Run JS/TS tests: jest/vitest/mocha/playwright, run/collect/coverage/watch, filter by pattern |
+| `rider_eslint` | `action=lint\|fix\|check\|config`, `pattern?`, `projectPath?`, `configFile?`, `format?`, `maxWarnings?`, `ignorePattern?`, `cache?`, `quiet?` | **(WebStorm only)** ESLint linting/fixing: lint/fix/check/config, configurable format/patterns |
 
 ### Java (IntelliJ IDEA)
 | Tool | Args | Description |
 |---|---|---|
-| `rider_maven` | `action=compile\|test\|package\|install\|deploy\|clean\|verify\|dependency:tree\|dependency:analyze\|versions:display-plugin-updates\|versions:display-dependency-updates\|help:describe`, `projectPath?`, `profiles?`, `skipTests?`, `offline?`, `extraArgs?`, `goal?` | Manage Maven projects: compile/test/package/install/deploy, dependency analysis, version updates |
-| `rider_gradle` | `action=tasks\|build\|test\|assemble\|check\|clean\|dependencies\|dependencyInsight\|wrapper\|help`, `projectPath?`, `task?`, `dependency?`, `extraArgs?` | Manage Gradle projects: tasks/build/test/assemble/check/clean/dependencies/dependencyInsight/wrapper/help |
-| `rider_junit` | `action=run\|run_and_wait\|list`, `classPattern?`, `methodPattern?`, `buildSystem?=maven\|gradle`, `projectPath?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | Run JUnit tests via Maven/Gradle: run/list tests, sessionId polling, class/method filters |
+| `rider_maven` | `action=compile\|test\|package\|install\|deploy\|clean\|verify\|dependency:tree\|dependency:analyze\|versions:display-plugin-updates\|versions:display-dependency-updates\|help:describe`, `projectPath?`, `profiles?`, `skipTests?`, `offline?`, `extraArgs?`, `goal?` | **(IntelliJ IDEA only)** Manage Maven projects: compile/test/package/install/deploy, dependency analysis, version updates |
+| `rider_gradle` | `action=tasks\|build\|test\|assemble\|check\|clean\|dependencies\|dependencyInsight\|wrapper\|help`, `projectPath?`, `task?`, `dependency?`, `extraArgs?` | **(IntelliJ IDEA only)** Manage Gradle projects: tasks/build/test/assemble/check/clean/dependencies/dependencyInsight/wrapper/help |
+| `rider_junit` | `action=run\|run_and_wait\|list`, `classPattern?`, `methodPattern?`, `buildSystem?=maven\|gradle`, `projectPath?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | **(IntelliJ IDEA only)** Run JUnit tests via Maven/Gradle: run/list tests, sessionId polling, class/method filters |
 
 ### C++ (CLion)
 | Tool | Args | Description |
 |---|---|---|
-| `rider_cmake` | `action=configure\|build\|test\|install\|clean\|targets\|cache`, `projectPath?`, `buildDir?`, `generator?`, `buildType?`, `extraArgs?`, `buildArgs?` | Manage CMake projects: configure/build/test/install/clean, list targets, show cache |
-| `rider_conan` | `action=install\|create\|export\|search\|list\|remove\|remote\|profile\|build`, `projectPath?`, `buildFolder?`, `profile?`, `reference?`, `remote?`, `pattern?`, `extraArgs?` | Manage C++ packages via Conan 2.x: install/create/export/search/list/remove/remote/profile/build |
-| `rider_debugger` | `action=start\|attach\|break\|continue\|step\|step_in\|step_out\|evaluate\|backtrace\|locals\|registers\|threads\|stop`, `debugger?=gdb\|lldb`, `executable?`, `args?`, `pid?`, `breakpoint?`, `expression?` | Control GDB/LLDB debugger: start/attach/break/continue/step/evaluate/backtrace/locals/registers/threads |
+| `rider_cmake` | `action=configure\|build\|test\|install\|clean\|targets\|cache`, `projectPath?`, `buildDir?`, `generator?`, `buildType?`, `extraArgs?`, `buildArgs?` | **(CLion only)** Manage CMake projects: configure/build/test/install/clean, list targets, show cache |
+| `rider_conan` | `action=install\|create\|export\|search\|list\|remove\|remote\|profile\|build`, `projectPath?`, `buildFolder?`, `profile?`, `reference?`, `remote?`, `pattern?`, `extraArgs?` | **(CLion only)** Manage C++ packages via Conan 2.x: install/create/export/search/list/remove/remote/profile/build |
+| `rider_debugger` | `action=start\|attach\|break\|continue\|step\|step_in\|step_out\|evaluate\|backtrace\|locals\|registers\|threads\|stop`, `debugger?=gdb\|lldb`, `executable?`, `args?`, `pid?`, `breakpoint?`, `expression?` | **(CLion only)** Control GDB/LLDB debugger: start/attach/break/continue/step/evaluate/backtrace/locals/registers/threads |
 
 ### PHP (PhpStorm)
 | Tool | Args | Description |
 |---|---|---|
-| `rider_composer` | `action=install\|update\|require\|remove\|show\|outdated\|validate\|dump-autoload\|create-project\|run-script\|audit`, `name?`, `version?`, `manager?=npm\|yarn\|pnpm`, `dev?`, `peer?`, `optional?`, `outdated?`, `script?`, `extraArgs?` | Manage PHP packages via Composer: install/update/require/remove/show/outdated/validate/dump-autoload/create-project/run-script/audit |
-| `rider_phpunit` | `action=run\|run_and_wait\|coverage\|list\|filter`, `filter?`, `projectPath?`, `configFile?`, `coverage?`, `coverageFormat?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | Run PHPUnit tests: run/collect/coverage/list/filter, sessionId polling |
-| `rider_phpstan` | `action=analyse\|baseline\|clear-result-cache`, `paths?`, `level?`, `configFile?`, `projectPath?`, `extraArgs?` | PHPStan static analysis: analyse/baseline/clear-result-cache, configurable levels |
+| `rider_composer` | `action=install\|update\|require\|remove\|show\|outdated\|validate\|dump-autoload\|create-project\|run-script\|audit`, `name?`, `version?`, `manager?=npm\|yarn\|pnpm`, `dev?`, `peer?`, `optional?`, `outdated?`, `script?`, `extraArgs?` | **(PhpStorm only)** Manage PHP packages via Composer: install/update/require/remove/show/outdated/validate/dump-autoload/create-project/run-script/audit |
+| `rider_phpunit` | `action=run\|run_and_wait\|coverage\|list\|filter`, `filter?`, `projectPath?`, `configFile?`, `coverage?`, `coverageFormat?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | **(PhpStorm only)** Run PHPUnit tests: run/collect/coverage/list/filter, sessionId polling |
+| `rider_phpstan` | `action=analyse\|baseline\|clear-result-cache`, `paths?`, `level?`, `configFile?`, `projectPath?`, `extraArgs?` | **(PhpStorm only)** PHPStan static analysis: analyse/baseline/clear-result-cache, configurable levels |
 
 ### Ruby (RubyMine)
 | Tool | Args | Description |
 |---|---|---|
-| `rider_bundler` | `action=install\|update\|add\|remove\|outdated\|audit\|list\|exec\|config\|show`, `name?`, `version?`, `group?`, `source?`, `without?`, `extraArgs?`, `command?` | Manage Ruby gems via Bundler: install/update/add/remove/outdated/audit/list/exec/config/show |
-| `rider_rspec` | `action=run\|run_and_wait\|list\|bisect`, `pattern?`, `filePattern?`, `projectPath?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | Run RSpec tests: run/list/bisect with sessionId polling, filter by pattern |
-| `rider_rubocop` | `action=lint\|fix\|check\|config\|list\|generate`, `pattern?`, `projectPath?`, `configFile?`, `format?`, `failFast?`, `cache?`, `autoCorrect?`, `safeAutoCorrect?` | RuboCop linting/fixing: lint/fix/check/config/list/generate, configurable format/patterns |
+| `rider_bundler` | `action=install\|update\|add\|remove\|outdated\|audit\|list\|exec\|config\|show`, `name?`, `version?`, `group?`, `source?`, `without?`, `extraArgs?`, `command?` | **(RubyMine only)** Manage Ruby gems via Bundler: install/update/add/remove/outdated/audit/list/exec/config/show |
+| `rider_rspec` | `action=run\|run_and_wait\|list\|bisect`, `pattern?`, `filePattern?`, `projectPath?`, `extraArgs?`, `timeoutMs?`, `sessionId?` | **(RubyMine only)** Run RSpec tests: run/list/bisect with sessionId polling, filter by pattern |
+| `rider_rubocop` | `action=lint\|fix\|check\|config\|list\|generate`, `pattern?`, `projectPath?`, `configFile?`, `format?`, `failFast?`, `cache?`, `autoCorrect?`, `safeAutoCorrect?` | **(RubyMine only)** RuboCop linting/fixing: lint/fix/check/config/list/generate, configurable format/patterns |
 
 ### Universal Test Runner (All IDEs)
 | Tool | Args | Description |
@@ -369,9 +365,9 @@ gradlew.bat runIde
 |---|---|
 | Agent says a tool window "has no content/tabs" | Open that window once in the IDE (**View → Tool Windows → …**) — unopened windows have nothing to read |
 | "No endpoints found..." | Check `rider_get_ide_state` for indexing/build progress and retry when idle; if idle and still empty, verify in the IDE via View → Tool Windows → Endpoints (panel has no detected routes). Fallback: text search for route attributes |
-| "No test configurations found" | Create a test run configuration (Run → Edit Configurations → +), or bypass configs by passing `filter`/`className`/`methodName` to run `dotnet test --filter` directly |
+| "No test configurations found" | Create a test run configuration (Run → Edit Configurations → +), or bypass configs by passing `filter`/`className`/`methodName` to run tests directly (e.g., `dotnet test --filter`, `go test -run`, `pytest -k`) |
 | "Multiple test configs found" | Pass `configName` to pick one |
-| NuGet or `filter` test runs fail with "dotnet: not found" / the wrong SDK | They use the .NET CLI selected in the IDE: **Settings → Build, Execution, Deployment → Toolset and Build → .NET CLI executable path** (`dotnet` on PATH only when the IDE detects none) |
+| NuGet or `filter` test runs fail with "dotnet: not found" / the wrong SDK | They use the .NET CLI selected in the IDE (**Rider only**: Settings → Build, Execution, Deployment → Toolset and Build → .NET CLI executable path; `dotnet` on PATH only when the IDE detects none) |
 | "No active debug session" | Start one with built-in `xdebug_start_debugger_session` (or Debug in the IDE) |
 | "Debugger is not paused..." | Pause first — evaluating/stepping require a paused debugger (pausing freezes the live process; prefer a dev/test instance) |
 | Debug console is empty | The session produced no application output (the debugger trace is still in `Debug Output`) |
@@ -392,7 +388,7 @@ gradlew.bat runIde
 - MCP calls longer than ~60 s are dropped by the MCP server (HTTP 404): tools that wait cap themselves at 50 s (`waitSeconds`, `rider_tests` `run_and_wait` — repeat it with `sessionId` to keep waiting) or 40 s (long-poll, `open_table`, `inIde`). Longer work → `async=true` + `rider_console_job`.
 - `rider_execute_console(inIde=true)` is refused on Read-only data sources and with `readOnly=true`: the IDE console run has no rolled-back transaction or read-only session.
 - Agents still sometimes pick the built-in `execute_sql_query`, which waits for a per-schema IDE confirmation dialog ("Allow … to Read Database Data"). Either tick **Always allow** there (Settings → Tools → Database → AI Tools) or hide the tool under **Settings → Tools → MCP Server → Exposed Tools**.
-- Eval rounds R8–R10 (DB consoles, S4/S12–S21) run automatically in an isolated sandbox Rider against a docker fixture — never against real servers. Ship-gate per `CONTRACT.md`.
+- Eval rounds R8–R10 (DB consoles, S4/S12–S21) run automatically in an isolated sandbox JetBrains IDE against a docker fixture — never against real servers. Ship-gate per `CONTRACT.md`.
 
 ## Limitations & Privacy
 
