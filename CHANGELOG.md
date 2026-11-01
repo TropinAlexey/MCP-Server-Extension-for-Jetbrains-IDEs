@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Features
 
 - Universal test runner (60c097d)
+- add automated changelog generation from conventional commits (f0aaa43)
+- Universal rider_workspace_config (7e82711)
+- Cargo enhancements (workspace/target filtering, registry auth) (edcacb5)
+
+## Bug Fixes
+
+- Plugin Verifier fixes (e9293f1)
 
 ## Documentation
 
