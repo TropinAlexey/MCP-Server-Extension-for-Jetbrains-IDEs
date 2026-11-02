@@ -85,9 +85,9 @@ intellijPlatform {
                     }
                 }
             }
-            // PyCharm Community verification — free, runs on all OSes in CI
+            // PyCharm verification — use PyCharm Professional (pycharmPC is discontinued since 2025.3)
             for (version in versions) {
-                create(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.PyCharmCommunity, version) {
+                create(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.PyCharm, version) {
                     useInstaller = false
                 }
             }
