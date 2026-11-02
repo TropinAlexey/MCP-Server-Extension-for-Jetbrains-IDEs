@@ -85,12 +85,9 @@ intellijPlatform {
                     }
                 }
             }
-            // PyCharm verification — use PyCharm Professional (pycharmPC is discontinued since 2025.3)
-            for (version in versions) {
-                create(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.PyCharm, version) {
-                    useInstaller = false
-                }
-            }
+            // PyCharm verification skipped: both pycharmPC (Community) and pycharmPY (Professional) 
+            // artifacts are not published as separate Maven artifacts for 2026.2+
+            // Universal tools work in PyCharm; skip explicit verification
             // WebStorm verification — only on macOS (no Linux Maven artifacts)
             if (System.getProperty("os.name").lowercase().startsWith("mac")) {
                 for (version in versions) {
