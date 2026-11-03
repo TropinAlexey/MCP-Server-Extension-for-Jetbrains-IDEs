@@ -32,6 +32,21 @@ When a build hangs, you see the output frozen at "Building Project7..." — your
 
 This plugin bridges that gap. It gives any MCP-compatible client (Claude Code, Codex, Gemini CLI, GitHub Copilot, Cursor, Junie, Windsurf, Continue, custom agents) the same situational awareness a programmer has — the ability to see what the IDE is doing, what it's showing, and what's happening in the background.
 
+### Visual Overview
+
+| Feature | Demo |
+|---|---|
+| **Universal Test Runner** (`rider_test`) | ![rider_test](assets/gifs/rider_test.gif) |
+| **Workspace Config** (`rider_workspace_config`) | ![rider_workspace_config](assets/gifs/rider_workspace_config.gif) |
+| **DB Console Execute** (`rider_execute_console`) | ![rider_execute_console](assets/gifs/rider_execute_console.gif) |
+| **Cargo Management** (`rider_cargo`) | ![rider_cargo](assets/gifs/rider_cargo.gif) |
+| **DB Console Results** (`rider_console_results`) | ![rider_console_results](assets/gifs/rider_console_results.gif) |
+| **Rider Test Runner** (`rider_tests`) | ![rider_tests](assets/gifs/rider_tests.gif) |
+| **Tool Window Reading** (`rider_tool_window`) | ![rider_tool_window](assets/gifs/rider_tool_window.gif) |
+| **IDE State** (`rider_get_ide_state`) | ![rider_get_ide_state](assets/gifs/rider_get_ide_state.gif) |
+
+> **Note:** GIFs are placeholders. See [GIF_SPECS.md](GIF_SPECS.md) for recording specifications.
+
 ### What the stock MCP plugin provides vs. what this adds
 
 JetBrains IDEs 2026.2+ ship a strong built-in MCP server. This plugin covers what it does not, and steers agents to the built-in tool where that one is the better choice (state as of 2026.2):

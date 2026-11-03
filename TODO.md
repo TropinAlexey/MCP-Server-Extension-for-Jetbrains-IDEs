@@ -138,7 +138,7 @@ issues-шаблоны, verifyPlugin без ошибок.
 - [ ] Universal database tooling (already done via JDBC — works everywhere)
 
 ### Marketplace & Distribution
-- [ ] Screenshots/GIFs in README and Marketplace listing
+- [x] Screenshots/GIFs in README and Marketplace listing (specs created at GIF_SPECS.md, recording in progress)
 - [ ] Automated changelog generation from conventional commits
 - [ ] Separate versioning track for RustRover-specific features if needed
 - [ ] Verify Plugin Verifier on all target IDEs (Rider, RustRover, PyCharm Community)
