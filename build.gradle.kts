@@ -19,8 +19,15 @@ dependencies {
     }
     compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     testImplementation(kotlin("test"))
-    testImplementation(kotlin("test-junit"))
-    testImplementation("junit:junit:4.13.2")
+    // Use JUnit 5 (JUnit Platform) for jqwik property-based testing
+    testImplementation(kotlin("test-junit5"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testImplementation("org.junit.platform:junit-platform-launcher:1.10.2")
+    testImplementation("org.junit.platform:junit-platform-engine:1.10.2")
+    testImplementation("org.junit.vintage:junit-vintage-engine:5.10.2")
+    // Property-based testing (jqwik)
+    testImplementation("net.jqwik:jqwik:1.8.1")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -30,7 +37,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 tasks.withType<Test> {
-    useJUnit()
+    useJUnitPlatform()
 }
 
 intellijPlatform {
@@ -136,6 +143,8 @@ tasks.register("checkToolDocs") {
 }
 
 tasks.findByName("check")?.dependsOn("checkToolDocs")
+
+// jqwik property-based testing is auto-discovered by JUnit Platform
 
 // Generate CHANGELOG.md from conventional commits
 tasks.register("generateChangelog") {

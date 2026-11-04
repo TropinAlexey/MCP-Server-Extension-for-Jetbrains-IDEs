@@ -147,5 +147,6 @@ issues-шаблоны, verifyPlugin без ошибок.
 - [ ] Add integration tests for `rider_cargo` (mock cargo or use test fixture)
 - [ ] CI: add RustRover verification on Linux (if artifacts become available)
 - [ ] CI: IntelliJ IDEA Community verification — deprecated in 2025.3, skipped
-- [ ] Mutation testing for critical paths (DB read-only guard, secret masking)
-- [ ] Property-based testing for SQL parsing (GO splitting, semicolon handling)
+- [x] Property-based testing (jqwik) for critical paths: SecretMasker, SqlReadOnlyGuard
+- [ ] Mutation testing (PIT) - removed due to `pitest-junit5-plugin` unavailable in IntelliJ repo; documented
+- [x] Property-based testing for SQL parsing (GO splitting, semicolon handling)
