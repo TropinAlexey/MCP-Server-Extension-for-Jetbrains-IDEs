@@ -425,7 +425,9 @@ class CargoToolset : McpToolset {
 
     // Helper functions for building common argument groups
 
-    private fun buildWorkspaceArgs(pkg: String?, workspace: Boolean?, exclude: String?): List<String> {
+    companion object {
+        @JvmStatic
+        internal fun buildWorkspaceArgs(pkg: String?, workspace: Boolean?, exclude: String?): List<String> {
         val args = mutableListOf<String>()
         pkg?.let { 
             it.split(",").forEach { p -> args.add("--package"); args.add(p.trim()) }
@@ -438,11 +440,16 @@ class CargoToolset : McpToolset {
         return args
     }
 
-    private fun buildTargetArgs(
+    @JvmStatic
+    internal fun buildTargetArgs(
         lib: Boolean, bin: String?, testTargets: String?, benchTargets: String?,
         exampleTargets: String?, allTargets: Boolean
     ): List<String> {
         val args = mutableListOf<String>()
+        if (allTargets) {
+            args.add("--all-targets")
+            return args
+        }
         if (lib) args.add("--lib")
         bin?.let { 
             if (it.lowercase() == "true") args.add("--bins")
@@ -460,11 +467,11 @@ class CargoToolset : McpToolset {
             if (it.lowercase() == "true") args.add("--examples")
             else it.split(",").forEach { e -> args.add("--example"); args.add(e.trim()) }
         }
-        if (allTargets) args.add("--all-targets")
         return args
     }
 
-    private fun buildRegistryArgs(registry: String?, token: String?, index: String?): List<String> {
+    @JvmStatic
+    internal fun buildRegistryArgs(registry: String?, token: String?, index: String?): List<String> {
         val args = mutableListOf<String>()
         registry?.let { args.add("--registry"); args.add(it) }
         token?.let { args.add("--token"); args.add(it) }
@@ -497,4 +504,5 @@ class CargoToolset : McpToolset {
         // Fallback to PATH
         return "cargo"
     }
+}
 }
