@@ -7,9 +7,22 @@
 <p align="center">
   <a href="https://plugins.jetbrains.com/plugin/34264-mcp-server-extension"><img src="https://img.shields.io/jetbrains/plugin/v/34264?style=flat-square&label=marketplace" alt="JetBrains Marketplace"></a>
   <a href="https://plugins.jetbrains.com/plugin/34264-mcp-server-extension"><img src="https://img.shields.io/jetbrains/plugin/d/34264?style=flat-square&label=downloads" alt="Downloads"></a>
+  <a href="https://plugins.jetbrains.com/plugin/34264-mcp-server-extension"><img src="https://img.shields.io/jetbrains/plugin/r/rating/34264?style=flat-square&label=rating" alt="Rating"></a>
   <a href="https://github.com/TropinAlexey/MCP-Server-Extension-for-Rider-and-RustRover/releases/latest"><img src="https://img.shields.io/github/v/release/TropinAlexey/MCP-Server-Extension-for-Rider-and-RustRover?style=flat-square&label=version" alt="Version"></a>
   <a href="https://github.com/TropinAlexey/MCP-Server-Extension-for-Rider-and-RustRover/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/TropinAlexey/MCP-Server-Extension-for-Rider-and-RustRover/build.yml?style=flat-square" alt="Build"></a>
+  <a href="https://plugins.jetbrains.com/plugin/34264-mcp-server-extension"><img src="https://img.shields.io/jetbrains/plugin/v/34264?style=flat-square&label=verified&color=green" alt="Verified"></a>
   <img src="https://img.shields.io/badge/JetBrains%20IDEs-2026.2%2B-blue?style=flat-square&logo=jetbrains" alt="JetBrains IDEs 2026.2+">
+  <img src="https://img.shields.io/badge/Rider-2026.2%2B-007ACC?style=flat-square&logo=jetbrains&logoColor=white" alt="Rider">
+  <img src="https://img.shields.io/badge/RustRover-2026.2%2B-FF6B35?style=flat-square&logo=rust&logoColor=white" alt="RustRover">
+  <img src="https://img.shields.io/badge/PyCharm-2026.2%2B-0086C8?style=flat-square&logo=pycharm&logoColor=white" alt="PyCharm">
+  <img src="https://img.shields.io/badge/GoLand-2026.2%2B-00ADD8?style=flat-square&logo=go&logoColor=white" alt="GoLand">
+  <img src="https://img.shields.io/badge/WebStorm-2026.2%2B-0086C8?style=flat-square&logo=webstorm&logoColor=white" alt="WebStorm">
+  <img src="https://img.shields.io/badge/IntelliJ%20IDEA-2026.2%2B-0086C8?style=flat-square&logo=intellijidea&logoColor=white" alt="IntelliJ IDEA">
+  <img src="https://img.shields.io/badge/CLion-2026.2%2B-0086C8?style=flat-square&logo=clion&logoColor=white" alt="CLion">
+  <img src="https://img.shields.io/badge/PhpStorm-2026.2%2B-0086C8?style=flat-square&logo=phpstorm&logoColor=white" alt="PhpStorm">
+  <img src="https://img.shields.io/badge/RubyMine-2026.2%2B-0086C8?style=flat-square&logo=rubymine&logoColor=white" alt="RubyMine">
+  <img src="https://img.shields.io/badge/DataGrip-2026.2%2B-0086C8?style=flat-square&logo=datagrip&logoColor=white" alt="DataGrip">
+  <img src="https://img.shields.io/badge/Android%20Studio-2026.2%2B-3DDC84?style=flat-square&logo=androidstudio&logoColor=white" alt="Android Studio">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="MIT License"></a>
 </p>
 
