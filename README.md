@@ -428,6 +428,14 @@ gradlew.bat runIde
 
 ## What's New
 
+### v2.12.0
+
+- **Property-based testing (jqwik)** for critical security paths:
+  - `SecretMaskerPropertyTest`: 12 properties covering column classification, connection string masking (password=, pwd=, secret=, api_key=, token=), JSON secrets (`"api_key": "..."`), PostgreSQL/MySQL connection URLs (`postgresql://user:pass@host/db`)
+  - `SqlReadOnlyGuardPropertyTest`: 30+ properties covering DML/DDL rejection (INSERT/UPDATE/DELETE/MERGE/TRUNCATE/DROP/ALTER/CREATE), temp table allowances (#temp, @table, CREATE TEMP TABLE), PostgreSQL/MSSQL specifics, dynamic SQL literal vs variable checks, transaction control (COMMIT rejected, ROLLBACK allowed), system procedures (sp_who2, sp_spaceused allowed; user procs rejected), comments/quoted identifiers, complex nested queries
+- **Test infrastructure**: JUnit Platform runner, kotlin-test-junit5, removed PIT (pitest-junit5-plugin unavailable in IntelliJ repo)
+- **All 151 tests pass**; Plugin Verifier: **Compatible** (2 internal API usages for Module.getModuleFilePath — no public alternative)
+
 ### v2.2.3
 
 - **Universal IDE support:** Plugin now works in all JetBrains IDEs 2026.2+ (IntelliJ IDEA, PyCharm, WebStorm, GoLand, CLion, DataGrip, PhpStorm, RubyMine, Android Studio, etc.) — Rider-only tools (NuGet, Publish, SWEA, dotTrace/dotMemory, WorkspaceConfig) remain unavailable in other IDEs; 15 universal tools work identically everywhere

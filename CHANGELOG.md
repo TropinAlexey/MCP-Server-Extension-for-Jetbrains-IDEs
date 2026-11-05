@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.0] - 2026-11-05
+
+### Features
+- Property-based testing (jqwik) for critical paths: SecretMasker and SqlReadOnlyGuard
+  - 12 properties for SecretMasker: column classification, connection string masking, JSON secrets, postgres URLs
+  - 30+ properties for SqlReadOnlyGuard: DML/DDL rejection, temp tables, MSSQL/PostgreSQL specifics, dynamic SQL, comments, quoted identifiers
+
+### Changed
+- Test runner switched from JUnit 4 to JUnit Platform (useJUnitPlatform)
+- kotlin-test-junit5 replaces kotlin-test-junit to avoid framework conflicts
+- Removed PIT mutation testing (pitest-junit5-plugin unavailable in IntelliJ repo)
+
+### Testing
+- All 151 tests pass (unit + property-based)
+- Plugin Verifier: Compatible (2 internal API usages for Module.getModuleFilePath)
+
 ## Features
 
 - Universal test runner (60c097d)

@@ -205,6 +205,8 @@ After any significant change (tool code, `McpDescription`, `plugin.xml`, docs th
 
 New or changed tool behavior ships with tests, no exceptions — pure logic (masking, parsing, pagination caps, validation) as unit tests, IDE-bound paths as IDE tests. A guard without a test is unfinished work: add the test in the same change and report the test run result alongside the zip.
 
+**Property-based testing (jqwik):** Critical security paths (SecretMasker, SqlReadOnlyGuard) are covered by property-based tests using jqwik 1.8.1 via JUnit Platform. Run `./gradlew test` to execute all 151 tests (unit + property-based). New property tests should follow the pattern in `src/test/kotlin/.../ide/*PropertyTest.kt`.
+
 ## ADR: Universal vs IDE-specific Test Runners
 
 **Decision:** `rider_test` (universal) and IDE-specific test tools (`rider_tests`, `rider_pytest`, `rider_go_test`, `rider_js_test`, `rider_junit`, `rider_phpunit`, `rider_rspec`) coexist. Agents must choose correctly.
