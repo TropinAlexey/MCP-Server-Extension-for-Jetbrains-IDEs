@@ -371,7 +371,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
                     mavenModules.forEach { m ->
                         addJsonObject {
                             put("name", m.name)
-                            put("path", m.moduleFilePath)
+                            put("path", ModuleRootManager.getInstance(m).contentRoots.firstOrNull()?.path ?: "")
                             put("type", "maven")
                         }
                     }
@@ -382,7 +382,7 @@ class UniversalWorkspaceConfigToolset : McpToolset {
                     gradleModules.forEach { m ->
                         addJsonObject {
                             put("name", m.name)
-                            put("path", m.moduleFilePath)
+                            put("path", ModuleRootManager.getInstance(m).contentRoots.firstOrNull()?.path ?: "")
                             put("type", "gradle")
                         }
                     }
