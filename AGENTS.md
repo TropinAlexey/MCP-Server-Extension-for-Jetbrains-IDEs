@@ -207,6 +207,29 @@ New or changed tool behavior ships with tests, no exceptions — pure logic (mas
 
 **Property-based testing (jqwik):** Critical security paths (SecretMasker, SqlReadOnlyGuard) are covered by property-based tests using jqwik 1.8.1 via JUnit Platform. Run `./gradlew test` to execute all 151 tests (unit + property-based). New property tests should follow the pattern in `src/test/kotlin/.../ide/*PropertyTest.kt`.
 
+## Internal API Rule
+
+**STRICTLY FORBIDDEN:** Use of any `@ApiStatus.Internal` or `@IntellijInternalApi` annotated methods/classes.
+
+**Before every release:** run `./gradlew verifyPlugin` — must show `Internal API usages: 0`.
+
+**Allowed public APIs (examples):**
+- `ModuleRootManager.getInstance(module).contentRoots` — module paths
+- `ProjectRootManager.getInstance(project).contentRoots` — project paths
+- `VirtualFile.path`, `VirtualFile.name`, `VirtualFile.getUrl()` — file system access
+- `LocalFileSystem.getInstance().findFileByPath(path)` — file lookup
+- `ModuleManager.getInstance(project).modules` — module enumeration
+- `ModuleType.get(module).name` — module type detection
+
+**Forbidden internal APIs (examples):**
+- `Module.getModuleFilePath()` — internal
+- `Module.getModuleFile()` — internal
+- `Module.moduleFilePath` property — internal
+- `Module.moduleFile` property — internal
+- Any method/class with `@ApiStatus.Internal` or `@IntellijInternalApi`
+
+**When you need module/project paths:** use `ModuleRootManager` or `ProjectRootManager` content roots — this is the public API contract.
+
 ## ADR: Universal vs IDE-specific Test Runners
 
 **Decision:** `rider_test` (universal) and IDE-specific test tools (`rider_tests`, `rider_pytest`, `rider_go_test`, `rider_js_test`, `rider_junit`, `rider_phpunit`, `rider_rspec`) coexist. Agents must choose correctly.
