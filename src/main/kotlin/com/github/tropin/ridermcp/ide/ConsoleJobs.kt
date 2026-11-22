@@ -1,5 +1,6 @@
 package com.github.tropin.ridermcp.ide
 
+import com.github.tropin.ridermcp.maskJdbcSecrets
 import com.intellij.mcpserver.McpToolset
 import com.intellij.mcpserver.annotations.McpDescription
 import com.intellij.mcpserver.annotations.McpTool
@@ -72,7 +73,7 @@ internal class ConsoleJob(
         put("readOnlyEnforced", readOnlyEnforced)
         put("elapsedMs", elapsedMs)
         if (status == "running" && totalBatches > 0) put("batch", "$batch/$totalBatches")
-        put("sql", sqlSnippet)
+        put("sql", maskJdbcSecrets(sqlSnippet))
         val msgs = messages(messagesOffset)
         putJsonArray("messages") {
             msgs.forEach { m ->
@@ -203,7 +204,7 @@ class ConsoleJobToolset : McpToolset {
                             put("console", j.console)
                             put("dataSource", j.dataSource)
                             put("elapsedMs", j.elapsedMs)
-                            put("sql", j.sqlSnippet)
+                            put("sql", maskJdbcSecrets(j.sqlSnippet))
                         })
                     }
                 }

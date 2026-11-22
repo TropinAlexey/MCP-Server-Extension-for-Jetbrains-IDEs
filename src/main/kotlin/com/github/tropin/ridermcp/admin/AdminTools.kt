@@ -15,8 +15,16 @@ class AdminToolset : McpToolset {
 
     @McpToolHints(destructiveHint = McpToolHintValue.TRUE)
     @McpTool
-    @McpDescription("Invalidates Rider caches and restarts the IDE (returns immediately; all rider_* sessions die). Confirm with the user first. Nuclear option for stale state only: wrong highlighting, missing references, broken completion, stuck indexing, phantom errors. Do NOT use for normal build/test failures — use the built-in build_solution_start / rider_tests + rider_tool_window(windowId='Problems') first.")
-    suspend fun rider_invalidate_caches(): String {
+    @McpDescription("Invalidates Rider caches and restarts the IDE (returns immediately; all rider_* sessions die). Requires confirm=true. Nuclear option for stale state only: wrong highlighting, missing references, broken completion, stuck indexing, phantom errors. Do NOT use for normal build/test failures — use the built-in build_solution_start / rider_tests + rider_tool_window(windowId='Problems') first.")
+    suspend fun rider_invalidate_caches(
+        @McpDescription("Must be true to confirm this destructive action") confirm: Boolean = false
+    ): String {
+        if (!confirm) {
+            return buildJsonObject {
+                put("status", "confirmation_required")
+                put("error", "This action restarts the IDE and kills all sessions. Pass confirm=true to proceed.")
+            }.toString()
+        }
         val project = coroutineContext.project
         ApplicationManager.getApplication().invokeLater {
             InvalidateCacheService.invalidateCachesAndRestart(project)

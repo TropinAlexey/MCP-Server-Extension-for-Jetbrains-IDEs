@@ -1,5 +1,6 @@
 package com.github.tropin.ridermcp.process
 
+import com.github.tropin.ridermcp.ide.SecretMasker
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.ui.RunContentManager
 import com.intellij.mcpserver.McpToolset
@@ -16,7 +17,7 @@ class ProcessToolset : McpToolset {
 
     @McpToolHints(readOnlyHint = McpToolHintValue.TRUE)
     @McpTool
-    @McpDescription("Lists live IDE-managed processes (builds, test runs, app runs started from Rider) with display name, inferred type, PID and command line. Optional type filter: 'build', 'test', 'run'. Use to find what is hanging and to resolve processName for rider_kill_process. For rider_* async sessions (with sessionId) prefer rider_get_ide_state.runningSessions + rider_get_output; for finished output use rider_tool_window windowId='Run'. Only non-terminated processes are listed.")
+    @McpDescription("Lists live IDE-managed processes (builds, test runs, app runs started from Rider) with display name, inferred type, PID and command line. Optional type filter: 'build', 'test', 'run'. Use to find what is hanging and to resolve processName for rider_kill_process. For rider_* async sessions (with sessionId) prefer rider_get_ide_state.runningSessions + rider_get_output; for finished output use rider_tool_window windowId='Run'. Only non-terminated processes are listed. Secrets in command lines are masked.")
     suspend fun rider_list_processes(
         @McpDescription("Filter by inferred type: build, test, run (omit = all)") type: String? = null
     ): String {
@@ -39,7 +40,7 @@ class ProcessToolset : McpToolset {
                 put("type", inferredType)
                 if (handler is OSProcessHandler) {
                     try { put("pid", handler.process.pid()) } catch (_: Exception) {}
-                    handler.commandLine?.let { put("commandLine", it) }
+                    handler.commandLine?.let { put("commandLine", SecretMasker.maskText(it)) }
                 }
             }
         }

@@ -11,8 +11,10 @@ fun Project.projectDir(): Path? = guessProjectDir()?.toNioPathOrNull()
 
 // Masks credentials in JDBC URLs for tool responses: password=... params
 // and userinfo (user:pass@) embedded in the URL authority. Never log raw URLs.
+// Covers: password, pwd, passwd, secret, token, apikey, accesskey
 fun maskJdbcSecrets(url: String): String =
-    url.replace(Regex("(?i)(password=)[^;&\\s]+"), "$1***")
+    url.replace(Regex("(?i)(password|pwd|passwd)=([^;&\\s]+)"), "$1=***")
+        .replace(Regex("(?i)(token|apikey|accesskey|secret)=([^;&\\s]+)"), "$1=***")
         .replace(Regex("(://)[^/\\s]*@"), "$1***@")
 
 fun Path.relTo(projectDir: Path?): String =

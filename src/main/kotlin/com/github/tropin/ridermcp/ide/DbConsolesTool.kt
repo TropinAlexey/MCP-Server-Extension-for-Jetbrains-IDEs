@@ -1,5 +1,6 @@
 package com.github.tropin.ridermcp.ide
 
+import com.github.tropin.ridermcp.maskJdbcSecrets
 import com.github.tropin.ridermcp.runOnEdt
 import com.intellij.mcpserver.McpToolset
 import com.intellij.mcpserver.annotations.McpDescription
@@ -137,7 +138,7 @@ class DbConsolesToolset : McpToolset {
         }
         if (busy != null) {
             mcpFail(
-                "Console '${resolved.fileName}' is busy: jobId=${busy.id}, running ${busy.elapsedMs / 1000}s (${busy.sqlSnippet}). " +
+                "Console '${resolved.fileName}' is busy: jobId=${busy.id}, running ${busy.elapsedMs / 1000}s (${maskJdbcSecrets(busy.sqlSnippet)}). " +
                     "Poll rider_console_job(jobId='${busy.id}') or stop it with action='cancel'."
             )
         }

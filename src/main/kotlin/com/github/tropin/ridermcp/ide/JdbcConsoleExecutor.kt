@@ -91,6 +91,9 @@ internal object JdbcConsoleExecutor {
         opts: Options,
         listener: Listener = object : Listener {}
     ): Outcome {
+        if (sql.length > 1_000_000) {
+            throw IllegalArgumentException("SQL text exceeds 1 MB limit (${sql.length} chars). Split into smaller batches or use a script file.")
+        }
         val started = System.currentTimeMillis()
         val dbms = ds.dbms
         val tsql = dbms.isMicrosoft || dbms.isSybase

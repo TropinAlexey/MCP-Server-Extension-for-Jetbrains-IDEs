@@ -8,6 +8,10 @@ package com.github.tropin.ridermcp.ide
  * writable: `#temp` tables and `@table` variables (MSSQL), `CREATE TEMP TABLE` (PostgreSQL).
  * It is a first line of defence; the executor additionally runs the script in a rolled-back
  * transaction (MSSQL) or a read-only session (PostgreSQL).
+ *
+ * NOTE: The guard allows CREATE TEMP TABLE (PostgreSQL) but cannot track subsequent DML
+ * on that temp table within the same script. The runtime read-only session enforcement
+ * (SET default_transaction_read_only=on) will still reject such DML at execution time.
  */
 internal object SqlReadOnlyGuard {
 
