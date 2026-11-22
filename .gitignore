@@ -10,3 +10,4 @@ local.properties
 .kotlin/
 .DS_Store
 .superpowers/
+build.log
