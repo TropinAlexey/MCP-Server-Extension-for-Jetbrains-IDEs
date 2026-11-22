@@ -428,7 +428,7 @@ gradlew.bat runIde
 
 ## What's New
 
-### v2.12.6
+### v2.12.5
 
 - **Security audit fixes:**
   - Extended `maskJdbcSecrets` regex to mask additional secret parameters: `pwd`, `passwd`, `token`, `apikey`, `accesskey`, `secret`
