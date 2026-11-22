@@ -428,6 +428,17 @@ gradlew.bat runIde
 
 ## What's New
 
+### v2.12.6
+
+- **Security audit fixes:**
+  - Extended `maskJdbcSecrets` regex to mask additional secret parameters: `pwd`, `passwd`, `token`, `apikey`, `accesskey`, `secret`
+  - Masked `sqlSnippet` in `rider_console_job` status JSON and busy messages to prevent credential leakage
+  - Added 1MB SQL text limit in `JdbcConsoleExecutor` to prevent OOM from oversized scripts
+  - Masked secrets in `rider_list_processes` command line output
+  - Added `confirm` parameter to `rider_invalidate_caches` — destructive action now requires explicit confirmation
+  - Added doc comment about PostgreSQL temp table limitation in `SqlReadOnlyGuard`
+- **All 151 tests pass**; build and artifacts verified
+
 ### v2.12.0
 
 - **Property-based testing (jqwik)** for critical security paths:
